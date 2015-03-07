@@ -3081,10 +3081,10 @@ class PEDACmd(object):
             i = 0
             for cmd in self.commands:
                 if cmd.startswith("_"): continue # skip internal use commands
-                func = getattr(self.__class__, cmd)
+                func = getattr(self, cmd)
                 docstring = func.__doc__
                 if not docstring:
-                    func.__doc__ = docstring = 'No help for %s' % cmd
+                    func.__func__.__doc__ = docstring = 'No help for %s' % cmd
                 helptext += "%s -- %s\n" % (cmd, green(trim(docstring.strip("\n").splitlines()[0])))
             helptext += "\nType \"help\" followed by subcommand for full documentation."
         else:
