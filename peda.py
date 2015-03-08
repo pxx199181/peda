@@ -3723,8 +3723,8 @@ class PEDACmd(object):
         else:
             id_ = 0
 
-        pid = proc_map.items()[id_][0]
-        cmdname = proc_map.items()[id_][1]
+        pid = list(proc_map.items())[id_][0]
+        cmdname = list(proc_map.items())[id_][1]
 
         msg(yellow("Attching to pid: %s, cmdname: %s" % (pid, cmdname)))
         if peda.getpid():
