@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #       PEDA - Python Exploit Development Assistance for GDB (python3 version)
@@ -3667,6 +3667,76 @@ class PEDACmd(object):
             time.sleep(0.5)
         return
 
+    def pattach(self, *arg):
+        """
+        Attach a process by name
+        Usage:
+            MYNAME process_name
+            MYNAME process_name [index]
+            MYNAME process_name [index] -c (auto continue after attached)
+        """
+        (proc_name, id_, opt) = normalize_argv(arg, 3, convert=False)
+        if not proc_name:
+            warning_msg("please specify the process name to attach")
+            self._missing_argument()
+
+        if id_ == '-c':
+            opt = id_
+            id_ = None
+        elif id_ != None:
+            try:
+                id_ = int(str(id_), 0)
+            except:
+                error_msg("Invalid index number.")
+                return
+
+        cmd = "ps axo pid,command | grep %s | grep -v grep" % proc_name
+        proc_map = {}
+        out = execute_external_command(cmd)
+        for line in out.splitlines():
+            line = line.split()
+            pid = line[0].strip()
+            cmdname = line[1].strip()
+            if proc_name not in cmdname:
+                continue
+            proc_map[pid] = cmdname
+        proc_map = collections.OrderedDict(sorted(proc_map.items(), reverse=True))
+
+        if len(proc_map) == 0:
+            msg("Process not found")
+            return
+
+        msg("\tPID\tCMD")
+        count = 0
+        for pid, cmdname in proc_map.items():
+            msg("[%d]\t%s\t%s" % (count, pid, cmdname))
+            count += 1
+
+        if len(proc_map) > 1:
+            if id_ == None:
+                warning_msg("Multiple processes exist.")
+                warning_msg("Please specify the index in the command line.")
+                return
+            elif id_ < 0 or id_ >= len(proc_map):
+                error_msg("Invalid index number.")
+                return
+        else:
+            id_ = 0
+
+        pid = proc_map.items()[id_][0]
+        cmdname = proc_map.items()[id_][1]
+
+        msg(yellow("Attching to pid: %s, cmdname: %s" % (pid, cmdname)))
+        if peda.getpid():
+            peda.execute("detach")
+        if not peda.execute("attach %s" % pid):
+            return
+        out = peda.execute_redirect("file %s" % cmdname) # reload symbol file
+        msg(out)
+        if opt == "-c":
+            peda.execute("continue")
+        return
+
     def pltbreak(self, *arg):
         """
         Set breakpoint at PLT functions match name regex
@@ -5959,6 +6029,7 @@ class PEDACmd(object):
         msg(result)
         return
     utils.options = ["int2hexstr", "list2hexstr", "str2intlist"]
+
 
 ###########################################################################
 class pedaGDBCommand(gdb.Command):
