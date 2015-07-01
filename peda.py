@@ -22,12 +22,9 @@ import traceback
 import collections
 from codecs import encode, decode
 try:
-    import pickle as pickle
+    import cPickle as pickle
 except:
     import pickle
-
-# if sys.version[0] != "3":
-    # raise Exception("Python2 is not supported at the moment, upgrade your GDB or use http://github.com/longld/peda")
 
 bytes = encode
 
@@ -1894,8 +1891,7 @@ class PEDA(object):
 
         if escape != 0:
             search = re.escape(search)
-
-        if isinstance(search, str):
+        elif isinstance(search, str):
             search = bytes(search)
 
         try:
@@ -4937,7 +4933,7 @@ class PEDACmd(object):
                     text += format_reference_chain(chain)
                     text += "\n"
             if text:
-                msg(encode(text.strip(), 'utf-8', 'ignore'))
+                msg(text.strip())
             if regname is None or "eflags" in regname:
                 self.eflags()
             return

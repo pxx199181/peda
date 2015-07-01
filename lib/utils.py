@@ -29,6 +29,9 @@ except: from io       import StringIO # Python3
 try:    unicode
 except: unicode = str
 
+try: input = raw_input
+except: pass
+
 # http://wiki.python.org/moin/PythonDecoratorLibrary#Memoize
 # http://stackoverflow.com/questions/8856164/class-decorator-decorating-method-in-python
 class memoized(object):
@@ -562,7 +565,7 @@ def format_disasm_code(code, nearby=None):
         target = 0
 
     for line in code.splitlines():
-        if ":" not in line: # not an assembly line
+        if ":" not in line or "Dump of assembler code" in line: # not an assembly line
             result += line + "\n"
         else:
             color = style = None
