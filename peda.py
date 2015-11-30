@@ -465,7 +465,7 @@ class PEDA(object):
         """
 
         (arch, bits) = self.getarch()
-        return bits/8
+        return int(bits / 8)
 
     def getregs(self, reglist=None):
         """
@@ -852,7 +852,7 @@ class PEDA(object):
         # check if address is reachable
         if not self.execute_redirect("x/x 0x%x" % pc):
             return None
-        prev_code = self.prev_inst(pc, count/2-1)
+        prev_code = self.prev_inst(pc, int(count / 2 - 1))
         if prev_code:
             start = prev_code[0][0]
         else:
