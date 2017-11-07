@@ -3673,7 +3673,7 @@ class PEDACmd(object):
             MYNAME process_name [index]
             MYNAME process_name [index] -c (auto continue after attached)
         """
-        (proc_name, id_, opt) = normalize_argv(arg, 3, convert=False)
+        (proc_name, id_, opt) = normalize_argv(arg, 3)
         if not proc_name:
             warning_msg("please specify the process name to attach")
             self._missing_argument()

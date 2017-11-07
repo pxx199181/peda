@@ -315,18 +315,21 @@ def is_math_exp(str):
     exp = set(str.lower())
     return (exp & opers != set()) and (exp - charset == set())
 
-def normalize_argv(args, size=0, convert=True):
+def normalize_argv(args, size=0):
     """
     Normalize argv to list with predefined length
     """
     args = list(args)
-    for (idx, val) in enumerate(args[:size]):
-        if convert:
-            as_int = to_int(val)
-            if as_int is not None:
-                args[idx] = as_int
+    for (idx, val) in enumerate(args):
+        if to_int(val) is not None:
+            args[idx] = to_int(val)
+        if size and idx == size:
+            return args[:idx]
 
-    args += [None]*(size-len(args))
+    if size == 0:
+        return args
+    for i in range(len(args), size):
+        args += [None]
     return args
 
 def to_hexstr(str):
