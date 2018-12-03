@@ -22,12 +22,9 @@ import traceback
 import collections
 from codecs import encode, decode
 try:
-    import pickle as pickle
+    import cPickle as pickle
 except:
     import pickle
-
-# if sys.version[0] != "3":
-    # raise Exception("Python2 is not supported at the moment, upgrade your GDB or use http://github.com/longld/peda")
 
 bytes = encode
 
@@ -468,7 +465,7 @@ class PEDA(object):
         """
 
         (arch, bits) = self.getarch()
-        return bits/8
+        return int(bits / 8)
 
     def getregs(self, reglist=None):
         """
@@ -855,7 +852,7 @@ class PEDA(object):
         # check if address is reachable
         if not self.execute_redirect("x/x 0x%x" % pc):
             return None
-        prev_code = self.prev_inst(pc, count/2-1)
+        prev_code = self.prev_inst(pc, int(count / 2 - 1))
         if prev_code:
             start = prev_code[0][0]
         else:
@@ -1894,8 +1891,7 @@ class PEDA(object):
 
         if escape != 0:
             search = re.escape(search)
-
-        if isinstance(search, str):
+        elif isinstance(search, str):
             search = bytes(search)
 
         try:
@@ -3038,6 +3034,7 @@ class PEDACmd(object):
         self._eX(where, bytes, 2)
 
     def ed(self, where, *bytes):
+        "docs"
         self._eX(where, bytes, 4)
 
     def reload(self, *arg):
@@ -3676,7 +3673,7 @@ class PEDACmd(object):
             MYNAME process_name [index]
             MYNAME process_name [index] -c (auto continue after attached)
         """
-        (proc_name, id_, opt) = normalize_argv(arg, 3, convert=False)
+        (proc_name, id_, opt) = normalize_argv(arg, 3)
         if not proc_name:
             warning_msg("please specify the process name to attach")
             self._missing_argument()
@@ -4830,7 +4827,7 @@ class PEDACmd(object):
         for k,v in syms.items():
             s = gdb.lookup_global_symbol(v)
             if s is not None:
-                regs[k] = int(s.value())
+                regs[k] = to_int(s.value())
 
 
         regsList = {}
